@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"sync"
 	"time"
 )
 
@@ -18,7 +19,7 @@ const (
 
 var (
 	LogLevel   Level  = LOG_INFO
-	DateFormat string = "2006-01-02 15:04:05"
+	DateFormat string = "2006-01-02 15:04:05.000"
 
 	FormatFunctions map[Level]func(*os.File, string, string, int, string, string) = map[Level]func(*os.File, string, string, int, string, string){
 		LOG_DEBUG: LogDefault,
