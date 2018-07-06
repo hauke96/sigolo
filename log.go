@@ -3,7 +3,7 @@ package sigolo
 import (
 	"fmt"
 	"os"
-	"path/filepath"
+	"path"
 	"runtime"
 	"time"
 )
@@ -73,17 +73,15 @@ func updateCallerColumnWidth(caller string) {
 func getCallerDetails() string {
 	name := "???"
 	line := -1
+	ok := false
 
 	// A bit hacky: We know here that the stack contains two calls from inside
 	// this file. The third frame comes from the file that initially called a
 	// function in this file (e.g. Info())
-	pc, _, _, ok := runtime.Caller(3)
+	_, name, line, ok = runtime.Caller(3)
 
 	if ok {
-		details := runtime.FuncForPC(pc)
-
-		name, line = details.FileLine(pc)
-		name = filepath.Base(name)
+		name = path.Base(name)
 	}
 
 	caller := fmt.Sprintf("%s:%d", name, line)
