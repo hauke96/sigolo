@@ -28,6 +28,14 @@ func main() {
 	sigolo.Info("Hello world!")
 	sigolo.Debug("Hello world!")
 	sigolo.Error("Hello world!")
+
+	time.Sleep(time.Millisecond)
+	fmt.Println()
+	sigolo.DateFormat = "02.01.2006 at 15:04:05"
+
+	sigolo.Info("Hello world!")
+	sigolo.Debug("Hello world!")
+	sigolo.Error("Hello world!")
 }
 
 func simpleInfo(writer *os.File, time, level string, maxLength int, caller, message string) {
