@@ -14,6 +14,7 @@ const (
 	LOG_DEBUG Level = iota
 	LOG_INFO
 	LOG_ERROR
+	LOG_FATAL
 )
 
 var (
@@ -24,6 +25,7 @@ var (
 		LOG_DEBUG: LogDefault,
 		LOG_INFO:  LogDefault,
 		LOG_ERROR: LogDefault,
+		LOG_FATAL: LogDefault,
 	}
 
 	// The current maximum length printed for caller information. This is updated each time something gets printed
@@ -33,12 +35,14 @@ var (
 		LOG_DEBUG: "[DEBUG]",
 		LOG_INFO:  "[INFO] ",
 		LOG_ERROR: "[ERROR]",
+		LOG_FATAL: "[FATAL]",
 	}
 
 	levelOutputs map[Level]*os.File = map[Level]*os.File{
 		LOG_DEBUG: os.Stdout,
 		LOG_INFO:  os.Stdout,
 		LOG_ERROR: os.Stderr,
+		LOG_FATAL: os.Stderr,
 	}
 )
 
@@ -52,6 +56,11 @@ func Debug(message string) {
 
 func Error(message string) {
 	log(LOG_ERROR, message)
+}
+
+func Fatal(message string) {
+	log(LOG_FATAL, message)
+	os.Exit(1)
 }
 
 func log(level Level, message string) {
