@@ -6,18 +6,20 @@ This is a simple file (I wouldn't call it _library_ or something), which helps y
 
 # How to use it
 ## Log level
-Specify the log level by changing `sigolo.LogLevel`. Possible value are `sigolo.LOG_DEBUG`, `sigolo.LOG_INFO` and `sigolo.LOG_ERROR`.
+Specify the log level by changing `sigolo.LogLevel`. Possible value are `sigolo.LOG_DEBUG`, `sigolo.LOG_INFO`, `sigolo.LOG_ERROR` and `sigolo.LOG_FATAL`.
 
 The following things will be printed out:
 
 | log level | method that will produce an output |
 |:--:|:--|
-| `LOG_DEBUG` | `sigolo.Debug()`<br>`sigolo.Info()`<br>`sigolo.Error()` |
-| `LOG_INFO` | `sigolo.Info()`<br>`sigolo.Error()` |
-| `LOG_ERROR` | `sigolo.Error()` |
+| `LOG_DEBUG` | `sigolo.Debug()`<br>`sigolo.Info()`<br>`sigolo.Error()`<br>`sigolo.Fatal()` |
+| `LOG_INFO` | `sigolo.Info()`<br>`sigolo.Error()`<br>`sigolo.Fatal()` |
+| `LOG_ERROR` | `sigolo.Error()`<br>`sigolo.Fatal()` |
+| `LOG_FATAL` | `sigolo.Fatal()`<sup>*</sup> |
+<sup>\*</sup> This will print the error and call `os.Exit(1)`
 
 ## Simple printing
-Just call `sigolo.{Info|Debug|Error}` with a message.
+Just call `sigolo.{Info|Debug|Error|Fatal}` with a message.
 
 The default printing format is something like this:
 
