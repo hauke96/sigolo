@@ -12,11 +12,13 @@ The following things will be printed out:
 
 | log level | method that will produce an output |
 |:--:|:--|
+| `LOG_PLAIN` | `sigolo.Plain()`<sup>*</sup><br>`sigolo.Debug()`<br>`sigolo.Info()`<br>`sigolo.Error()`<br>`sigolo.Fatal()` |
 | `LOG_DEBUG` | `sigolo.Debug()`<br>`sigolo.Info()`<br>`sigolo.Error()`<br>`sigolo.Fatal()` |
 | `LOG_INFO` | `sigolo.Info()`<br>`sigolo.Error()`<br>`sigolo.Fatal()` |
 | `LOG_ERROR` | `sigolo.Error()`<br>`sigolo.Fatal()` |
-| `LOG_FATAL` | `sigolo.Fatal()`<sup>*</sup> |
-<sup>\*</sup> This will print the error and call `os.Exit(1)`
+| `LOG_FATAL` | `sigolo.Fatal()`<sup>**</sup> |
+<sup>\*</sup> Prints to stdout but without any tags in front<br>
+<sup>\*\*</sup> This will print the error and call `os.Exit(1)`
 
 ## Simple printing
 Just call `sigolo.{Info|Debug|Error|Fatal}` with a message.

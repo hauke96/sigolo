@@ -11,7 +11,8 @@ import (
 type Level int
 
 const (
-	LOG_DEBUG Level = iota
+	LOG_PLAIN Level = iota
+	LOG_DEBUG
 	LOG_INFO
 	LOG_ERROR
 	LOG_FATAL
@@ -22,6 +23,7 @@ var (
 	DateFormat string = "2006-01-02 15:04:05.000"
 
 	FormatFunctions map[Level]func(*os.File, string, string, int, string, string) = map[Level]func(*os.File, string, string, int, string, string){
+		LOG_PLAIN: LogPlain,
 		LOG_DEBUG: LogDefault,
 		LOG_INFO:  LogDefault,
 		LOG_ERROR: LogDefault,
@@ -32,6 +34,7 @@ var (
 	CallerColumnWidth = 0
 
 	levelStrings map[Level]string = map[Level]string{
+		LOG_PLAIN: "",
 		LOG_DEBUG: "[DEBUG]",
 		LOG_INFO:  "[INFO] ",
 		LOG_ERROR: "[ERROR]",
@@ -39,12 +42,17 @@ var (
 	}
 
 	levelOutputs map[Level]*os.File = map[Level]*os.File{
+		LOG_PLAIN: os.Stdout,
 		LOG_DEBUG: os.Stdout,
 		LOG_INFO:  os.Stdout,
 		LOG_ERROR: os.Stderr,
 		LOG_FATAL: os.Stderr,
 	}
 )
+
+func Plain(message string) {
+	log(LOG_PLAIN, message)
+}
 
 func Info(message string) {
 	log(LOG_INFO, message)
