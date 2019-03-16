@@ -50,24 +50,24 @@ var (
 	}
 )
 
-func Plain(message string) {
-	log(LOG_PLAIN, message)
+func Plain(format string, a ...interface{}) {
+	log(LOG_PLAIN, fmt.Sprintf(format, a...))
 }
 
-func Info(message string) {
-	log(LOG_INFO, message)
+func Info(format string, a ...interface{}) {
+	log(LOG_INFO, fmt.Sprintf(format, a...))
 }
 
-func Debug(message string) {
-	log(LOG_DEBUG, message)
+func Debug(format string, a ...interface{}) {
+	log(LOG_DEBUG, fmt.Sprintf(format, a...))
 }
 
-func Error(message string) {
-	log(LOG_ERROR, message)
+func Error(format string, a ...interface{}) {
+	log(LOG_ERROR, fmt.Sprintf(format, a...))
 }
 
-func Fatal(message string) {
-	log(LOG_FATAL, message)
+func Fatal(format string, a ...interface{}) {
+	log(LOG_FATAL, fmt.Sprintf(format, a...))
 	os.Exit(1)
 }
 

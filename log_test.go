@@ -37,7 +37,9 @@ func checkSimpleWrite(t *testing.T, pipe *os.File, originalData string, logLevel
 	if originalData != outputData {
 		t.Errorf("Payload does not match")
 		t.Errorf("original : %x\n", originalData)
+		t.Errorf("         : %s\n", originalData)
 		t.Errorf("written  : %x\n", outputData)
+		t.Errorf("         : %s\n", outputData)
 		t.Fail()
 	}
 
@@ -49,7 +51,31 @@ func checkSimpleWrite(t *testing.T, pipe *os.File, originalData string, logLevel
 	if levelStrings[logLevel] != outputLevel {
 		t.Errorf("Log-level string does not patch")
 		t.Errorf("original : %x\n", levelStrings[logLevel])
+		t.Errorf("         : %s\n", levelStrings[logLevel])
 		t.Errorf("written  : %x\n", outputLevel)
+		t.Errorf("         : %s\n", outputLevel)
+		t.Fail()
+	}
+}
+
+func TestPlain(t *testing.T) {
+	pipe := prepare(LOG_PLAIN)
+
+	originalData := "aAzZ1!?_´→"
+
+	Plain(originalData)
+
+	data := make([]byte, 2<<10)
+	pipe.Read(data)
+
+	writtenOutput := string(data)
+	writtenOutput = strings.Trim(writtenOutput, "\000")
+	writtenOutput = strings.Trim(writtenOutput, "\n")
+
+	if originalData != writtenOutput {
+		t.Errorf("Payload does not match")
+		t.Errorf("original : %x\n", originalData)
+		t.Errorf("written  : %x\n", writtenOutput)
 		t.Fail()
 	}
 }
@@ -103,12 +129,13 @@ func TestFatal(t *testing.T) {
 	checkSimpleWrite(t, readPipe, originalData, LOG_FATAL)
 }
 
-func TestPlain(t *testing.T) {
+func TestPlainFormat(t *testing.T) {
 	pipe := prepare(LOG_PLAIN)
 
-	originalData := "aAzZ1!?_´→"
+	originalData := "foo_123_bla_70"
+	originalFormat := "foo_%d_%s_%x"
 
-	Plain(originalData)
+	Plain(originalFormat, 123, "bla", "p")
 
 	data := make([]byte, 2<<10)
 	pipe.Read(data)
@@ -124,3 +151,58 @@ func TestPlain(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestInfoFormat(t *testing.T) {
+	pipe := prepare(LOG_INFO)
+
+	originalData := "foo_123_bla_70"
+	originalFormat := "foo_%d_%s_%x"
+
+	Info(originalFormat, 123, "bla", "p")
+
+	checkSimpleWrite(t, pipe, originalData, LOG_INFO)
+}
+
+func TestDebugFormat(t *testing.T) {
+	pipe := prepare(LOG_DEBUG)
+
+	originalData := "foo_123_bla_70"
+	originalFormat := "foo_%d_%s_%x"
+
+	Debug(originalFormat, 123, "bla", "p")
+
+	checkSimpleWrite(t, pipe, originalData, LOG_DEBUG)
+}
+
+func TestErrorFormat(t *testing.T) {
+	pipe := prepare(LOG_ERROR)
+
+	originalData := "foo_123_bla_70"
+	originalFormat := "foo_%d_%s_%x"
+
+	Error(originalFormat, 123, "bla", "p")
+
+	checkSimpleWrite(t, pipe, originalData, LOG_ERROR)
+}
+
+func TestFatalFormat(t *testing.T) {
+	originalData := "foo_123_bla_70"
+	originalFormat := "foo_%d_%s_%x"
+
+	if os.Getenv("LOG_FATAL") == "1" {
+		Fatal(originalFormat, 123, "bla", "p")
+		return
+	}
+	readPipe, writePipe, _ := os.Pipe()
+
+	// Starts this test function as separate process to test the "os.Exit(1)" of Fatal
+	cmd := exec.Command(os.Args[0], "-test.run=TestFatalFormat")
+	cmd.Env = append(os.Environ(), "LOG_FATAL=1")
+	cmd.Stderr = writePipe
+	cmd.Stdout = writePipe
+	cmd.Run()
+
+	checkSimpleWrite(t, readPipe, originalData, LOG_FATAL)
+}
+
+// TODO more test regarding the caller information (function name and line)
