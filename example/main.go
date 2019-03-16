@@ -17,9 +17,9 @@ func main() {
 	fmt.Println()
 	sigolo.LogLevel = sigolo.LOG_DEBUG
 
-	sigolo.Info("Hello world!")
-	sigolo.Debug("Hello world!")
-	sigolo.Error("Hello world!")
+	sigolo.Info("Hello %s!", "world")
+	sigolo.Debug("Hello %x!", "world")
+	sigolo.Error("Hello %d!", 123)
 
 	time.Sleep(time.Millisecond)
 	fmt.Println()

@@ -23,10 +23,16 @@ The following things will be printed out:
 ## Simple printing
 Just call `sigolo.{Info|Debug|Error|Fatal}` with a message.
 
+```go
+sigolo.Info("Hello world!")
+sigolo.Debug("Coordinate: %d, %d", x, y)
+```
+
 The default printing format is something like this:
 
 ```bash
-2018-07-21 01:59:05.431 [DEBUG] main.go:21 | Hello world!
+2018-07-21 01:59:05.431 [INFO]  main.go:21 | Hello world!
+2018-07-21 01:59:05.432 [DEBUG] main.go:22 | Coordinate: 42, 13
 ```
 
 ## Change general output format
