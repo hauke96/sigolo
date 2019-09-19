@@ -71,6 +71,22 @@ func Fatal(format string, a ...interface{}) {
 	os.Exit(1)
 }
 
+// FatalCheckf checks if the error exists (!= nil). If so, it'll print the error
+// message and fatals with the given format message.
+func FatalCheckf(err error, format string, a ...interface{}) {
+	if err != nil {
+		Error(err.Error())
+		Fatal(format, a)
+	}
+}
+
+// FatalCheck checks if the error exists (!= nil). If so, it'll fatal with the error message.
+func FatalCheck(err error) {
+	if err != nil {
+		Fatal(err.Error())
+	}
+}
+
 func log(level Level, message string) {
 	caller := getCallerDetails()
 
