@@ -33,7 +33,7 @@ var (
 	// The current maximum length printed for caller information. This is updated each time something gets printed
 	CallerColumnWidth = 0
 
-	levelStrings map[Level]string = map[Level]string{
+	LevelStrings map[Level]string = map[Level]string{
 		LOG_PLAIN: "",
 		LOG_DEBUG: "[DEBUG]",
 		LOG_INFO:  "[INFO] ",
@@ -41,7 +41,7 @@ var (
 		LOG_FATAL: "[FATAL]",
 	}
 
-	levelOutputs map[Level]*os.File = map[Level]*os.File{
+	LevelOutputs map[Level]*os.File = map[Level]*os.File{
 		LOG_PLAIN: os.Stdout,
 		LOG_DEBUG: os.Stdout,
 		LOG_INFO:  os.Stdout,
@@ -93,7 +93,7 @@ func log(level Level, message string) {
 	updateCallerColumnWidth(caller)
 
 	if LogLevel <= level {
-		FormatFunctions[level](levelOutputs[level], time.Now().Format(DateFormat), levelStrings[level], CallerColumnWidth, caller, message)
+		FormatFunctions[level](LevelOutputs[level], time.Now().Format(DateFormat), LevelStrings[level], CallerColumnWidth, caller, message)
 	}
 }
 
