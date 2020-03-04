@@ -51,18 +51,30 @@ var (
 )
 
 func Plain(format string, a ...interface{}) {
+	if LogLevel > LOG_PLAIN {
+		return
+	}
 	log(LOG_PLAIN, fmt.Sprintf(format, a...))
 }
 
 func Info(format string, a ...interface{}) {
+	if LogLevel > LOG_INFO {
+		return
+	}
 	log(LOG_INFO, fmt.Sprintf(format, a...))
 }
 
 func Debug(format string, a ...interface{}) {
+	if LogLevel > LOG_DEBUG {
+		return
+	}
 	log(LOG_DEBUG, fmt.Sprintf(format, a...))
 }
 
 func Error(format string, a ...interface{}) {
+	if LogLevel > LOG_ERROR {
+		return
+	}
 	log(LOG_ERROR, fmt.Sprintf(format, a...))
 }
 
@@ -92,9 +104,7 @@ func log(level Level, message string) {
 
 	updateCallerColumnWidth(caller)
 
-	if LogLevel <= level {
-		FormatFunctions[level](LevelOutputs[level], time.Now().Format(DateFormat), LevelStrings[level], CallerColumnWidth, caller, message)
-	}
+	FormatFunctions[level](LevelOutputs[level], time.Now().Format(DateFormat), LevelStrings[level], CallerColumnWidth, caller, message)
 }
 
 func updateCallerColumnWidth(caller string) {
