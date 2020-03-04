@@ -78,8 +78,17 @@ func Error(format string, a ...interface{}) {
 	log(LOG_ERROR, fmt.Sprintf(format, a...))
 }
 
+func internalError(format string, a ...interface{}) {
+	internalLog(LOG_ERROR, fmt.Sprintf(format, a...))
+}
+
 func Fatal(format string, a ...interface{}) {
 	log(LOG_FATAL, fmt.Sprintf(format, a...))
+	os.Exit(1)
+}
+
+func internalFatal(format string, a ...interface{}) {
+	internalLog(LOG_FATAL, fmt.Sprintf(format, a...))
 	os.Exit(1)
 }
 
@@ -87,20 +96,38 @@ func Fatal(format string, a ...interface{}) {
 // message and fatals with the given format message.
 func FatalCheckf(err error, format string, a ...interface{}) {
 	if err != nil {
-		Error(err.Error())
-		Fatal(format, a)
+		internalError(err.Error())
+		if a != nil {
+			internalFatal(format, a)
+		} else {
+			internalFatal(format)
+		}
 	}
 }
 
 // FatalCheck checks if the error exists (!= nil). If so, it'll fatal with the error message.
 func FatalCheck(err error) {
 	if err != nil {
-		Fatal(err.Error())
+		internalFatal(err.Error())
 	}
 }
 
 func log(level Level, message string) {
-	caller := getCallerDetails()
+	// A bit hacky: We know here that the stack contains two calls from inside
+	// this file. The third frame comes from the file that initially called a
+	// function in this file (e.g. Info())
+	caller := getCallerDetails(3)
+
+	updateCallerColumnWidth(caller)
+
+	FormatFunctions[level](LevelOutputs[level], time.Now().Format(DateFormat), LevelStrings[level], CallerColumnWidth, caller, message)
+}
+
+func internalLog(level Level, message string) {
+	// A bit hacky: We know here that the stack contains three calls from inside
+	// this file. The third frame comes from the file that initially called a
+	// function in this file (e.g. Info())
+	caller := getCallerDetails(4)
 
 	updateCallerColumnWidth(caller)
 
@@ -113,15 +140,12 @@ func updateCallerColumnWidth(caller string) {
 	}
 }
 
-func getCallerDetails() string {
+func getCallerDetails(framesBackwards int) string {
 	name := "???"
 	line := -1
 	ok := false
 
-	// A bit hacky: We know here that the stack contains two calls from inside
-	// this file. The third frame comes from the file that initially called a
-	// function in this file (e.g. Info())
-	_, name, line, ok = runtime.Caller(3)
+	_, name, line, ok = runtime.Caller(framesBackwards)
 
 	if ok {
 		name = path.Base(name)
