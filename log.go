@@ -98,7 +98,7 @@ func FatalCheckf(err error, format string, a ...interface{}) {
 	if err != nil {
 		internalError(err.Error())
 		if a != nil {
-			internalFatal(format, a)
+			internalFatal(format, a...)
 		} else {
 			internalFatal(format)
 		}
