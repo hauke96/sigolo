@@ -78,6 +78,17 @@ func Error(format string, a ...interface{}) {
 	log(LOG_ERROR, fmt.Sprintf(format, a...))
 }
 
+// Stack tries to print the stack trace of the given error using the  %+v  format string. When using the
+// https://github.com/pkg/errors package, this will print a full stack trace of the error. If normal errors are used,
+// this function will just print the error.
+func Stack(err error) {
+	if LogLevel > LOG_ERROR {
+		return
+	}
+	// Directly call "log" to avoid extra function call
+	log(LOG_ERROR, fmt.Sprintf("%+v", err))
+}
+
 func internalError(format string, a ...interface{}) {
 	internalLog(LOG_ERROR, fmt.Sprintf(format, a...))
 }
