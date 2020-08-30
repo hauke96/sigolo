@@ -54,28 +54,60 @@ func Plain(format string, a ...interface{}) {
 	if LogLevel > LOG_PLAIN {
 		return
 	}
-	log(LOG_PLAIN, fmt.Sprintf(format, a...))
+	log(LOG_PLAIN, 3, fmt.Sprintf(format, a...))
+}
+
+// Plainb is equal to Plain(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Plainb(framesBackward int, format string, a ...interface{}) {
+	if LogLevel > LOG_PLAIN {
+		return
+	}
+	log(LOG_PLAIN, 3 + framesBackward, fmt.Sprintf(format, a...))
 }
 
 func Info(format string, a ...interface{}) {
 	if LogLevel > LOG_INFO {
 		return
 	}
-	log(LOG_INFO, fmt.Sprintf(format, a...))
+	log(LOG_INFO, 3, fmt.Sprintf(format, a...))
+}
+
+// Infob is equal to Info(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Infob(framesBackward int, format string, a ...interface{}) {
+	if LogLevel > LOG_INFO {
+		return
+	}
+	log(LOG_INFO, 3 + framesBackward, fmt.Sprintf(format, a...))
 }
 
 func Debug(format string, a ...interface{}) {
 	if LogLevel > LOG_DEBUG {
 		return
 	}
-	log(LOG_DEBUG, fmt.Sprintf(format, a...))
+	log(LOG_DEBUG, 3, fmt.Sprintf(format, a...))
+}
+
+// Debugb is equal to Debug(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Debugb(framesBackward int, format string, a ...interface{}) {
+	if LogLevel > LOG_DEBUG {
+		return
+	}
+	log(LOG_DEBUG, 3 + framesBackward, fmt.Sprintf(format, a...))
 }
 
 func Error(format string, a ...interface{}) {
 	if LogLevel > LOG_ERROR {
 		return
 	}
-	log(LOG_ERROR, fmt.Sprintf(format, a...))
+	log(LOG_ERROR, 3, fmt.Sprintf(format, a...))
+}
+
+// Errorb is equal to Error(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Errorb(framesBackward int, format string, a ...interface{}) {
+	if LogLevel > LOG_ERROR {
+		return
+	}
+	log(LOG_ERROR, 3 + framesBackward, fmt.Sprintf(format, a...))
 }
 
 // Stack tries to print the stack trace of the given error using the  %+v  format string. When using the
@@ -86,7 +118,7 @@ func Stack(err error) {
 		return
 	}
 	// Directly call "log" to avoid extra function call
-	log(LOG_ERROR, fmt.Sprintf("%+v", err))
+	log(LOG_ERROR, 3, fmt.Sprintf("%+v", err))
 }
 
 func internalError(format string, a ...interface{}) {
@@ -94,7 +126,7 @@ func internalError(format string, a ...interface{}) {
 }
 
 func Fatal(format string, a ...interface{}) {
-	log(LOG_FATAL, fmt.Sprintf(format, a...))
+	log(LOG_FATAL, 3, fmt.Sprintf(format, a...))
 	os.Exit(1)
 }
 
@@ -123,11 +155,11 @@ func FatalCheck(err error) {
 	}
 }
 
-func log(level Level, message string) {
+func log(level Level, framesBackward int, message string) {
 	// A bit hacky: We know here that the stack contains two calls from inside
 	// this file. The third frame comes from the file that initially called a
 	// function in this file (e.g. Info())
-	caller := getCallerDetails(3)
+	caller := getCallerDetails(framesBackward)
 
 	updateCallerColumnWidth(caller)
 
