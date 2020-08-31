@@ -121,6 +121,15 @@ func Stack(err error) {
 	log(LOG_ERROR, 3, fmt.Sprintf("%+v", err))
 }
 
+// Stackb is equal to Stack(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Stackb(framesBackward int, err error) {
+	if LogLevel > LOG_ERROR {
+		return
+	}
+	// Directly call "log" to avoid extra function call
+	log(LOG_ERROR, 3+framesBackward, fmt.Sprintf("%+v", err))
+}
+
 func internalError(format string, a ...interface{}) {
 	internalLog(LOG_ERROR, fmt.Sprintf(format, a...))
 }
