@@ -25,9 +25,13 @@ func thisFunc() error {
 }
 
 func main() {
+	sigolo.Plain("Hello world!") // will not be printed as log level is to restrictive
 	sigolo.Info("Hello world!")
 	sigolo.Debug("Hello world %d times!", 42) // not shown because log-level is on INFO
 	sigolo.Error("Hello world!")
+
+	sigolo.LogLevel = sigolo.LOG_PLAIN
+	sigolo.Plain("Some plain text") // now the log level is ok
 
 	time.Sleep(time.Millisecond)
 	fmt.Println("\n===== 1 =====\n")

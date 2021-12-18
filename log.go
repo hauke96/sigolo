@@ -19,10 +19,10 @@ const (
 )
 
 var (
-	LogLevel   Level  = LOG_INFO
-	DateFormat string = "2006-01-02 15:04:05.000"
+	LogLevel   = LOG_INFO
+	DateFormat = "2006-01-02 15:04:05.000"
 
-	FormatFunctions map[Level]func(*os.File, string, string, int, string, string) = map[Level]func(*os.File, string, string, int, string, string){
+	FormatFunctions = map[Level]func(*os.File, string, string, int, string, string){
 		LOG_PLAIN: LogPlain,
 		LOG_DEBUG: LogDefault,
 		LOG_INFO:  LogDefault,
@@ -33,7 +33,7 @@ var (
 	// The current maximum length printed for caller information. This is updated each time something gets printed
 	CallerColumnWidth = 0
 
-	LevelStrings map[Level]string = map[Level]string{
+	LevelStrings = map[Level]string{
 		LOG_PLAIN: "",
 		LOG_DEBUG: "[DEBUG]",
 		LOG_INFO:  "[INFO] ",
@@ -41,7 +41,7 @@ var (
 		LOG_FATAL: "[FATAL]",
 	}
 
-	LevelOutputs map[Level]*os.File = map[Level]*os.File{
+	LevelOutputs = map[Level]*os.File{
 		LOG_PLAIN: os.Stdout,
 		LOG_DEBUG: os.Stdout,
 		LOG_INFO:  os.Stdout,
@@ -62,7 +62,7 @@ func Plainb(framesBackward int, format string, a ...interface{}) {
 	if LogLevel > LOG_PLAIN {
 		return
 	}
-	log(LOG_PLAIN, 3 + framesBackward, fmt.Sprintf(format, a...))
+	log(LOG_PLAIN, 3+framesBackward, fmt.Sprintf(format, a...))
 }
 
 func Info(format string, a ...interface{}) {
@@ -77,7 +77,7 @@ func Infob(framesBackward int, format string, a ...interface{}) {
 	if LogLevel > LOG_INFO {
 		return
 	}
-	log(LOG_INFO, 3 + framesBackward, fmt.Sprintf(format, a...))
+	log(LOG_INFO, 3+framesBackward, fmt.Sprintf(format, a...))
 }
 
 func Debug(format string, a ...interface{}) {
@@ -92,7 +92,7 @@ func Debugb(framesBackward int, format string, a ...interface{}) {
 	if LogLevel > LOG_DEBUG {
 		return
 	}
-	log(LOG_DEBUG, 3 + framesBackward, fmt.Sprintf(format, a...))
+	log(LOG_DEBUG, 3+framesBackward, fmt.Sprintf(format, a...))
 }
 
 func Error(format string, a ...interface{}) {
@@ -107,7 +107,7 @@ func Errorb(framesBackward int, format string, a ...interface{}) {
 	if LogLevel > LOG_ERROR {
 		return
 	}
-	log(LOG_ERROR, 3 + framesBackward, fmt.Sprintf(format, a...))
+	log(LOG_ERROR, 3+framesBackward, fmt.Sprintf(format, a...))
 }
 
 // Stack tries to print the stack trace of the given error using the  %+v  format string. When using the
@@ -130,17 +130,8 @@ func Stackb(framesBackward int, err error) {
 	log(LOG_ERROR, 3+framesBackward, fmt.Sprintf("%+v", err))
 }
 
-func internalError(format string, a ...interface{}) {
-	internalLog(LOG_ERROR, fmt.Sprintf(format, a...))
-}
-
 func Fatal(format string, a ...interface{}) {
 	log(LOG_FATAL, 3, fmt.Sprintf(format, a...))
-	os.Exit(1)
-}
-
-func internalFatal(format string, a ...interface{}) {
-	internalLog(LOG_FATAL, fmt.Sprintf(format, a...))
 	os.Exit(1)
 }
 
@@ -148,13 +139,12 @@ func internalFatal(format string, a ...interface{}) {
 // message and fatals with the given format message.
 func FatalCheckf(err error, format string, a ...interface{}) {
 	if err != nil {
+		Stackb(1, err)
 		if a != nil {
 			internalFatal(format, a...)
 		} else {
 			internalFatal(format)
 		}
-		Stackb(1, err)
-		os.Exit(1)
 	}
 }
 
@@ -164,6 +154,11 @@ func FatalCheck(err error) {
 		Stackb(1, err)
 		os.Exit(1)
 	}
+}
+
+func internalFatal(format string, a ...interface{}) {
+	internalLog(LOG_FATAL, fmt.Sprintf(format, a...))
+	os.Exit(1)
 }
 
 func log(level Level, framesBackward int, message string) {
