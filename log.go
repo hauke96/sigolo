@@ -148,19 +148,21 @@ func internalFatal(format string, a ...interface{}) {
 // message and fatals with the given format message.
 func FatalCheckf(err error, format string, a ...interface{}) {
 	if err != nil {
-		internalError(err.Error())
 		if a != nil {
 			internalFatal(format, a...)
 		} else {
 			internalFatal(format)
 		}
+		Stackb(1, err)
+		os.Exit(1)
 	}
 }
 
 // FatalCheck checks if the error exists (!= nil). If so, it'll fatal with the error message.
 func FatalCheck(err error) {
 	if err != nil {
-		internalFatal(err.Error())
+		Stackb(1, err)
+		os.Exit(1)
 	}
 }
 

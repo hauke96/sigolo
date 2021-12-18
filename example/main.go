@@ -62,7 +62,8 @@ func main() {
 	sigolo.Info("Hello world!")
 	sigolo.Debug("Hello world!")
 	sigolo.Error("Hello world!")
-	sigolo.Fatal("Bye world!")
+
+	sigolo.FatalCheck(thisFunc())
 }
 
 func simpleInfo(writer *os.File, time, level string, maxLength int, caller, message string) {
