@@ -73,15 +73,15 @@ Exmaple: To specify your own debug-format:
 
 ```go
 func main() {
-// Whenever sigolo.Debug is called, our simpleDebug method is used to produce the output.
-sigolo.FormatFunctions[sigolo.LOG_DEBUG] = simpleDebug
-
-sigolo.Debug("Hello world!")
-}
-
-func simpleDebug(writer *os.File, time, level string, maxLength int, caller, message string) {
-// Don't forget the \n at the end ;)
-fmt.Fprintf(writer, "Debug: %s\n", message)
+    // Whenever sigolo.Debug is called, our simpleDebug method is used to produce the output.
+    sigolo.FormatFunctions[sigolo.LOG_DEBUG] = simpleDebug
+    
+    sigolo.Debug("Hello world!")
+    }
+    
+    func simpleDebug(writer *os.File, time, level string, maxLength int, caller, message string) {
+    // Don't forget the \n at the end ;)
+    fmt.Fprintf(writer, "Debug: %s\n", message)
 }
 ```
 
@@ -100,10 +100,10 @@ Example:
 
 ```go
 func main() {
-// Use the go time formatting string as described in https://pkg.go.dev/time
-sigolo.DateFormat = "02.01.2006 at 15:04:05"
-
-sigolo.Debug("Hello world!")
+    // Use the go time formatting string as described in https://pkg.go.dev/time
+    sigolo.DateFormat = "02.01.2006 at 15:04:05"
+    
+    sigolo.Debug("Hello world!")
 }
 ```
 
