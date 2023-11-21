@@ -12,6 +12,7 @@ type Level int
 
 const (
 	LOG_PLAIN Level = iota
+	LOG_TRACE
 	LOG_DEBUG
 	LOG_INFO
 	LOG_ERROR
@@ -24,6 +25,7 @@ var (
 
 	FormatFunctions = map[Level]func(*os.File, string, string, int, string, string){
 		LOG_PLAIN: LogPlain,
+		LOG_TRACE: LogDefault,
 		LOG_DEBUG: LogDefault,
 		LOG_INFO:  LogDefault,
 		LOG_ERROR: LogDefault,
@@ -35,6 +37,7 @@ var (
 
 	LevelStrings = map[Level]string{
 		LOG_PLAIN: "",
+		LOG_TRACE: "[TRACE]",
 		LOG_DEBUG: "[DEBUG]",
 		LOG_INFO:  "[INFO] ",
 		LOG_ERROR: "[ERROR]",
@@ -43,6 +46,7 @@ var (
 
 	LevelOutputs = map[Level]*os.File{
 		LOG_PLAIN: os.Stdout,
+		LOG_TRACE: os.Stdout,
 		LOG_DEBUG: os.Stdout,
 		LOG_INFO:  os.Stdout,
 		LOG_ERROR: os.Stderr,
@@ -93,6 +97,21 @@ func Debugb(framesBackward int, format string, a ...interface{}) {
 		return
 	}
 	log(LOG_DEBUG, 3+framesBackward, fmt.Sprintf(format, a...))
+}
+
+func Trace(format string, a ...interface{}) {
+	if LogLevel > LOG_TRACE {
+		return
+	}
+	log(LOG_TRACE, 3, fmt.Sprintf(format, a...))
+}
+
+// Traceb is equal to Trace(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Traceb(framesBackward int, format string, a ...interface{}) {
+	if LogLevel > LOG_TRACE {
+		return
+	}
+	log(LOG_TRACE, 3+framesBackward, fmt.Sprintf(format, a...))
 }
 
 func Error(format string, a ...interface{}) {
