@@ -15,6 +15,7 @@ const (
 	LOG_TRACE
 	LOG_DEBUG
 	LOG_INFO
+	LOG_WARN
 	LOG_ERROR
 	LOG_FATAL
 )
@@ -76,26 +77,26 @@ func Plainb(framesBackward int, format string, args ...interface{}) {
 	log(LOG_PLAIN, 3+framesBackward, fmt.Sprintf(format, args...))
 }
 
-func Info(message string) {
-	if LogLevel > LOG_INFO {
+func Trace(message string) {
+	if LogLevel > LOG_TRACE {
 		return
 	}
-	log(LOG_INFO, 3, message)
+	log(LOG_TRACE, 3, message)
 }
 
-func Infof(format string, args ...interface{}) {
-	if LogLevel > LOG_INFO {
+func Tracef(format string, args ...interface{}) {
+	if LogLevel > LOG_TRACE {
 		return
 	}
-	log(LOG_INFO, 3, fmt.Sprintf(format, args...))
+	log(LOG_TRACE, 3, fmt.Sprintf(format, args...))
 }
 
-// Infob is equal to Infof(...) but can go back in the stack and can therefore show function positions from previous functions.
-func Infob(framesBackward int, format string, args ...interface{}) {
-	if LogLevel > LOG_INFO {
+// Traceb is equal to Tracef(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Traceb(framesBackward int, format string, args ...interface{}) {
+	if LogLevel > LOG_TRACE {
 		return
 	}
-	log(LOG_INFO, 3+framesBackward, fmt.Sprintf(format, args...))
+	log(LOG_TRACE, 3+framesBackward, fmt.Sprintf(format, args...))
 }
 
 func Debug(message string) {
@@ -120,26 +121,48 @@ func Debugb(framesBackward int, format string, args ...interface{}) {
 	log(LOG_DEBUG, 3+framesBackward, fmt.Sprintf(format, args...))
 }
 
-func Trace(message string) {
-	if LogLevel > LOG_TRACE {
+func Info(message string) {
+	if LogLevel > LOG_INFO {
 		return
 	}
-	log(LOG_TRACE, 3, message)
+	log(LOG_INFO, 3, message)
 }
 
-func Tracef(format string, args ...interface{}) {
-	if LogLevel > LOG_TRACE {
+func Infof(format string, args ...interface{}) {
+	if LogLevel > LOG_INFO {
 		return
 	}
-	log(LOG_TRACE, 3, fmt.Sprintf(format, args...))
+	log(LOG_INFO, 3, fmt.Sprintf(format, args...))
 }
 
-// Traceb is equal to Tracef(...) but can go back in the stack and can therefore show function positions from previous functions.
-func Traceb(framesBackward int, format string, args ...interface{}) {
-	if LogLevel > LOG_TRACE {
+// Infob is equal to Infof(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Infob(framesBackward int, format string, args ...interface{}) {
+	if LogLevel > LOG_INFO {
 		return
 	}
-	log(LOG_TRACE, 3+framesBackward, fmt.Sprintf(format, args...))
+	log(LOG_INFO, 3+framesBackward, fmt.Sprintf(format, args...))
+}
+
+func Warn(message string) {
+	if LogLevel > LOG_WARN {
+		return
+	}
+	log(LOG_WARN, 3, message)
+}
+
+func Warnf(format string, args ...interface{}) {
+	if LogLevel > LOG_WARN {
+		return
+	}
+	log(LOG_WARN, 3, fmt.Sprintf(format, args...))
+}
+
+// Warnb is equal to Warnf(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Warnb(framesBackward int, format string, args ...interface{}) {
+	if LogLevel > LOG_WARN {
+		return
+	}
+	log(LOG_WARN, 3+framesBackward, fmt.Sprintf(format, args...))
 }
 
 func Error(message string) {
@@ -164,6 +187,21 @@ func Errorb(framesBackward int, format string, args ...interface{}) {
 	log(LOG_ERROR, 3+framesBackward, fmt.Sprintf(format, args...))
 }
 
+func Fatal(message string) {
+	log(LOG_FATAL, 3, message)
+	os.Exit(1)
+}
+
+func Fatalf(format string, args ...interface{}) {
+	log(LOG_FATAL, 3, fmt.Sprintf(format, args...))
+	os.Exit(1)
+}
+
+// Fatalb is equal to Fatalf(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Fatalb(framesBackward int, format string, args ...interface{}) {
+	log(LOG_FATAL, 3+framesBackward, fmt.Sprintf(format, args...))
+}
+
 // Stack tries to print the stack trace of the given error using the  %+v  format string. When using the
 // https://github.com/pkg/errors package, this will print a full stack trace of the error. If normal errors are used,
 // this function will just print the error.
@@ -182,16 +220,6 @@ func Stackb(framesBackward int, err error) {
 	}
 	// Directly call "log" to avoid extra function call
 	log(LOG_ERROR, 3+framesBackward, fmt.Sprintf("%+v", err))
-}
-
-func Fatal(message string) {
-	log(LOG_FATAL, 3, message)
-	os.Exit(1)
-}
-
-func Fatalf(format string, args ...interface{}) {
-	log(LOG_FATAL, 3, fmt.Sprintf(format, args...))
-	os.Exit(1)
 }
 
 // FatalCheckf checks if the error exists (!= nil). If so, it'll print the error
