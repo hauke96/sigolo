@@ -1,14 +1,16 @@
 # sigolo
 
-Simple logging helper for go helping you to use log levels, create customizable outputs and to print stack traces.
+**Si**mple **go**lang **lo**gging helper with lots of ways to customize the logging output.
 
 # How to use it
 
-Just call `sigolo.{Plain|Info|Debug|Error|Fatal}` with a message.
+tl;dr Just call `sigolo.{Plain|Debug|Info|Warn|Error|Fatal}` with a message.
+
+## Simple calls
 
 ```go
 sigolo.Info("Hello world!")
-sigolo.Debug("Coordinate: %d, %d", x, y)
+sigolo.Debugf("Coordinate: %d, %d", x, y)
 ```
 
 The default printing format is something like this:
@@ -18,13 +20,12 @@ The default printing format is something like this:
 2018-07-21 01:59:05.432 [DEBUG] main.go:22 | Coordinate: 42, 13
 ```
 
-Only the `sigolo.Plain` function does not produce leading information (date, log-level, etc.) and just acts
-like `fmt.Printf` does.
+Only the `sigolo.Plainf` function does not produce leading information (date, log-level, etc.) and just acts like `fmt.Printf` does.
 
 ## Error handling
 
-I recommend the [pkg/errors](https://github.com/pkg/errors) package to create and wrap your errors. Why? It enables you
-to see stack traces ;)
+I recommend the [pkg/errors](https://github.com/pkg/errors) package to create and wrap your errors.
+Why? It enables you to see stack traces ;)
 
 To exit on an error, there's the `sigolo.FatalCheck` function:
 
@@ -33,37 +34,23 @@ err := someFunctionCall()
 sigolo.FatalCheck(err)
 ```
 
-When `err` is *not* `nil`, then the error including stack trace will be printed and your application exists with exit
-code 1.
+When `err` is *not* `nil`, then the error including stack trace will be printed and your application exists with exit code 1.
 
 ## Log level
 
-Specify the log level by changing `sigolo.LogLevel`. Possible value are `sigolo.LOG_PLAIN`, `sigolo.LOG_DEBUG`
-, `sigolo.LOG_INFO`, `sigolo.LOG_ERROR` and `sigolo.LOG_FATAL`.
+Specify the log level by changing `sigolo.LogLevel`.
+Possible value are `sigolo.LOG_PLAIN`, `sigolo.LOG_DEBUG`, `sigolo.LOG_INFO`, `sigolo.LOG_WARN`, `sigolo.LOG_ERROR` and `sigolo.LOG_FATAL`.
+The levels are ordered, choosing one "mutes" the previous ones.
+Example: When choosing `sigolo.LOG_INFO` then the plain and debug relates method do not print anything.
 
-Depending on the log level, some functions will be quite and do not produce outputs anymore:
-
-| log level | Methods which will produce an output |
-|:--:|:--|
-| `LOG_PLAIN` | `sigolo.Plain()`<sup>*</sup><br>`sigolo.Debug()`<br>`sigolo.Info()`<br>`sigolo.Error()`<br>`sigolo.Fatal()`<br>`sigolo.CheckFatal()`<br>`sigolo.Stack()` |
-| `LOG_DEBUG` | `sigolo.Debug()`<br>`sigolo.Info()`<br>`sigolo.Error()`<br>`sigolo.Fatal()`<br>`sigolo.CheckFatal()`<br>`sigolo.Stack()` |
-| `LOG_INFO` | `sigolo.Info()`<br>`sigolo.Error()`<br>`sigolo.Fatal()`<br>`sigolo.CheckFatal()`<br>`sigolo.Stack()` |
-| `LOG_ERROR` | `sigolo.Error()`<br>`sigolo.Fatal()`<br>`sigolo.CheckFatal()`<br>`sigolo.Stack()` |
-| `LOG_FATAL` | `sigolo.Fatal()`<sup>**</sup><br>`sigolo.CheckFatal()`<sup>**</sup> |
-<sup>\*</sup> Prints to stdout but without any tags in front<br>
-<sup>\*\*</sup> This will print the error and call `os.Exit(1)`
+The fatal methods print without any formatting on stderr and then exit with `os.Exit(1)`.
 
 ## Function suffixes / Variants
 
 Some functions have a suffix with slightly different behavior.
 
-For non-fatal functions:
-
-* Suffix `b`: Acts like the normal function, but in order to print the correct caller you can go **b**ack in the stack.
-
-For fatal-functions:
-
-* Suffix `f`: Acts like the normal function, but after printing the stack, the given format string will be evaluated and printed as well.
+* `b`: Acts like the normal function, but in order to print the correct caller you can go **b**ack in the stack by a given number of frames.
+* `f`: Acts like `fmt.Printf`.
 
 ## Change general output format
 
