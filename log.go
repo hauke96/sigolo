@@ -54,79 +54,114 @@ var (
 	}
 )
 
-func Plain(format string, a ...interface{}) {
+func Plain(message string) {
 	if LogLevel > LOG_PLAIN {
 		return
 	}
-	log(LOG_PLAIN, 3, fmt.Sprintf(format, a...))
+	log(LOG_PLAIN, 3, message)
 }
 
-// Plainb is equal to Plain(...) but can go back in the stack and can therefore show function positions from previous functions.
-func Plainb(framesBackward int, format string, a ...interface{}) {
+func Plainf(format string, args ...interface{}) {
 	if LogLevel > LOG_PLAIN {
 		return
 	}
-	log(LOG_PLAIN, 3+framesBackward, fmt.Sprintf(format, a...))
+	log(LOG_PLAIN, 3, fmt.Sprintf(format, args...))
 }
 
-func Info(format string, a ...interface{}) {
+// Plainb is equal to Plainf(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Plainb(framesBackward int, format string, args ...interface{}) {
+	if LogLevel > LOG_PLAIN {
+		return
+	}
+	log(LOG_PLAIN, 3+framesBackward, fmt.Sprintf(format, args...))
+}
+
+func Info(message string) {
 	if LogLevel > LOG_INFO {
 		return
 	}
-	log(LOG_INFO, 3, fmt.Sprintf(format, a...))
+	log(LOG_INFO, 3, message)
 }
 
-// Infob is equal to Info(...) but can go back in the stack and can therefore show function positions from previous functions.
-func Infob(framesBackward int, format string, a ...interface{}) {
+func Infof(format string, args ...interface{}) {
 	if LogLevel > LOG_INFO {
 		return
 	}
-	log(LOG_INFO, 3+framesBackward, fmt.Sprintf(format, a...))
+	log(LOG_INFO, 3, fmt.Sprintf(format, args...))
 }
 
-func Debug(format string, a ...interface{}) {
+// Infob is equal to Infof(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Infob(framesBackward int, format string, args ...interface{}) {
+	if LogLevel > LOG_INFO {
+		return
+	}
+	log(LOG_INFO, 3+framesBackward, fmt.Sprintf(format, args...))
+}
+
+func Debug(message string) {
 	if LogLevel > LOG_DEBUG {
 		return
 	}
-	log(LOG_DEBUG, 3, fmt.Sprintf(format, a...))
+	log(LOG_DEBUG, 3, message)
 }
 
-// Debugb is equal to Debug(...) but can go back in the stack and can therefore show function positions from previous functions.
-func Debugb(framesBackward int, format string, a ...interface{}) {
+func Debugf(format string, args ...interface{}) {
 	if LogLevel > LOG_DEBUG {
 		return
 	}
-	log(LOG_DEBUG, 3+framesBackward, fmt.Sprintf(format, a...))
+	log(LOG_DEBUG, 3, fmt.Sprintf(format, args...))
 }
 
-func Trace(format string, a ...interface{}) {
+// Debugb is equal to Debugf(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Debugb(framesBackward int, format string, args ...interface{}) {
+	if LogLevel > LOG_DEBUG {
+		return
+	}
+	log(LOG_DEBUG, 3+framesBackward, fmt.Sprintf(format, args...))
+}
+
+func Trace(message string) {
 	if LogLevel > LOG_TRACE {
 		return
 	}
-	log(LOG_TRACE, 3, fmt.Sprintf(format, a...))
+	log(LOG_TRACE, 3, message)
 }
 
-// Traceb is equal to Trace(...) but can go back in the stack and can therefore show function positions from previous functions.
-func Traceb(framesBackward int, format string, a ...interface{}) {
+func Tracef(format string, args ...interface{}) {
 	if LogLevel > LOG_TRACE {
 		return
 	}
-	log(LOG_TRACE, 3+framesBackward, fmt.Sprintf(format, a...))
+	log(LOG_TRACE, 3, fmt.Sprintf(format, args...))
 }
 
-func Error(format string, a ...interface{}) {
+// Traceb is equal to Tracef(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Traceb(framesBackward int, format string, args ...interface{}) {
+	if LogLevel > LOG_TRACE {
+		return
+	}
+	log(LOG_TRACE, 3+framesBackward, fmt.Sprintf(format, args...))
+}
+
+func Error(message string) {
 	if LogLevel > LOG_ERROR {
 		return
 	}
-	log(LOG_ERROR, 3, fmt.Sprintf(format, a...))
+	log(LOG_ERROR, 3, message)
 }
 
-// Errorb is equal to Error(...) but can go back in the stack and can therefore show function positions from previous functions.
-func Errorb(framesBackward int, format string, a ...interface{}) {
+func Errorf(format string, args ...interface{}) {
 	if LogLevel > LOG_ERROR {
 		return
 	}
-	log(LOG_ERROR, 3+framesBackward, fmt.Sprintf(format, a...))
+	log(LOG_ERROR, 3, fmt.Sprintf(format, args...))
+}
+
+// Errorb is equal to Errorf(...) but can go back in the stack and can therefore show function positions from previous functions.
+func Errorb(framesBackward int, format string, args ...interface{}) {
+	if LogLevel > LOG_ERROR {
+		return
+	}
+	log(LOG_ERROR, 3+framesBackward, fmt.Sprintf(format, args...))
 }
 
 // Stack tries to print the stack trace of the given error using the  %+v  format string. When using the
@@ -149,18 +184,23 @@ func Stackb(framesBackward int, err error) {
 	log(LOG_ERROR, 3+framesBackward, fmt.Sprintf("%+v", err))
 }
 
-func Fatal(format string, a ...interface{}) {
-	log(LOG_FATAL, 3, fmt.Sprintf(format, a...))
+func Fatal(message string) {
+	log(LOG_FATAL, 3, message)
+	os.Exit(1)
+}
+
+func Fatalf(format string, args ...interface{}) {
+	log(LOG_FATAL, 3, fmt.Sprintf(format, args...))
 	os.Exit(1)
 }
 
 // FatalCheckf checks if the error exists (!= nil). If so, it'll print the error
 // message and fatals with the given format message.
-func FatalCheckf(err error, format string, a ...interface{}) {
+func FatalCheckf(err error, format string, args ...interface{}) {
 	if err != nil {
 		Stackb(1, err)
-		if a != nil {
-			internalFatal(format, a...)
+		if args != nil {
+			internalFatal(format, args...)
 		} else {
 			internalFatal(format)
 		}
@@ -175,15 +215,15 @@ func FatalCheck(err error) {
 	}
 }
 
-func internalFatal(format string, a ...interface{}) {
-	internalLog(LOG_FATAL, fmt.Sprintf(format, a...))
+func internalFatal(format string, args ...interface{}) {
+	internalLog(LOG_FATAL, fmt.Sprintf(format, args...))
 	os.Exit(1)
 }
 
 func log(level Level, framesBackward int, message string) {
 	// A bit hacky: We know here that the stack contains two calls from inside
 	// this file. The third frame comes from the file that initially called a
-	// function in this file (e.g. Info())
+	// function in this file (e.g. Infof())
 	caller := getCallerDetails(framesBackward)
 
 	updateCallerColumnWidth(caller)
@@ -194,7 +234,7 @@ func log(level Level, framesBackward int, message string) {
 func internalLog(level Level, message string) {
 	// A bit hacky: We know here that the stack contains three calls from inside
 	// this file. The third frame comes from the file that initially called a
-	// function in this file (e.g. Info())
+	// function in this file (e.g. Infof())
 	caller := getCallerDetails(4)
 
 	updateCallerColumnWidth(caller)

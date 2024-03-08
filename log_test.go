@@ -63,7 +63,7 @@ func TestPlain(t *testing.T) {
 
 	originalData := "aAzZ1!?_´→"
 
-	Plain(originalData)
+	Plainf(originalData)
 
 	data := make([]byte, 2<<10)
 	pipe.Read(data)
@@ -85,7 +85,7 @@ func TestInfo(t *testing.T) {
 
 	originalData := "aAzZ1!?_´→"
 
-	Info(originalData)
+	Infof(originalData)
 
 	checkSimpleWrite(t, pipe, originalData, LOG_INFO)
 }
@@ -95,7 +95,7 @@ func TestDebug(t *testing.T) {
 
 	originalData := "aAzZ1!?_´→"
 
-	Debug(originalData)
+	Debugf(originalData)
 
 	checkSimpleWrite(t, pipe, originalData, LOG_DEBUG)
 }
@@ -105,7 +105,7 @@ func TestTrace(t *testing.T) {
 
 	originalData := "aAzZ1!?_´→"
 
-	Trace(originalData)
+	Tracef(originalData)
 
 	checkSimpleWrite(t, pipe, originalData, LOG_TRACE)
 }
@@ -115,7 +115,7 @@ func TestError(t *testing.T) {
 
 	originalData := "aAzZ1!?_´→"
 
-	Error(originalData)
+	Errorf(originalData)
 
 	checkSimpleWrite(t, pipe, originalData, LOG_ERROR)
 }
@@ -124,12 +124,12 @@ func TestFatal(t *testing.T) {
 	originalData := "aAzZ1!?_´→"
 
 	if os.Getenv("LOG_FATAL") == "1" {
-		Fatal(originalData)
+		Fatalf(originalData)
 		return
 	}
 	readPipe, writePipe, _ := os.Pipe()
 
-	// Starts this test function as separate process to test the "os.Exit(1)" of Fatal
+	// Starts this test function as separate process to test the "os.Exit(1)" of Fatalf
 	cmd := exec.Command(os.Args[0], "-test.run=TestFatal")
 	cmd.Env = append(os.Environ(), "LOG_FATAL=1")
 	cmd.Stderr = writePipe
@@ -145,7 +145,7 @@ func TestPlainFormat(t *testing.T) {
 	originalData := "foo_123_bla_70"
 	originalFormat := "foo_%d_%s_%x"
 
-	Plain(originalFormat, 123, "bla", "p")
+	Plainf(originalFormat, 123, "bla", "p")
 
 	data := make([]byte, 2<<10)
 	pipe.Read(data)
@@ -168,7 +168,7 @@ func TestInfoFormat(t *testing.T) {
 	originalData := "foo_123_bla_70"
 	originalFormat := "foo_%d_%s_%x"
 
-	Info(originalFormat, 123, "bla", "p")
+	Infof(originalFormat, 123, "bla", "p")
 
 	checkSimpleWrite(t, pipe, originalData, LOG_INFO)
 }
@@ -179,7 +179,7 @@ func TestDebugFormat(t *testing.T) {
 	originalData := "foo_123_bla_70"
 	originalFormat := "foo_%d_%s_%x"
 
-	Debug(originalFormat, 123, "bla", "p")
+	Debugf(originalFormat, 123, "bla", "p")
 
 	checkSimpleWrite(t, pipe, originalData, LOG_DEBUG)
 }
@@ -190,7 +190,7 @@ func TestTraceFormat(t *testing.T) {
 	originalData := "foo_123_bla_70"
 	originalFormat := "foo_%d_%s_%x"
 
-	Trace(originalFormat, 123, "bla", "p")
+	Tracef(originalFormat, 123, "bla", "p")
 
 	checkSimpleWrite(t, pipe, originalData, LOG_TRACE)
 }
@@ -201,7 +201,7 @@ func TestErrorFormat(t *testing.T) {
 	originalData := "foo_123_bla_70"
 	originalFormat := "foo_%d_%s_%x"
 
-	Error(originalFormat, 123, "bla", "p")
+	Errorf(originalFormat, 123, "bla", "p")
 
 	checkSimpleWrite(t, pipe, originalData, LOG_ERROR)
 }
@@ -211,12 +211,12 @@ func TestFatalFormat(t *testing.T) {
 	originalFormat := "foo_%d_%s_%x"
 
 	if os.Getenv("LOG_FATAL") == "1" {
-		Fatal(originalFormat, 123, "bla", "p")
+		Fatalf(originalFormat, 123, "bla", "p")
 		return
 	}
 	readPipe, writePipe, _ := os.Pipe()
 
-	// Starts this test function as separate process to test the "os.Exit(1)" of Fatal
+	// Starts this test function as separate process to test the "os.Exit(1)" of Fatalf
 	cmd := exec.Command(os.Args[0], "-test.run=TestFatalFormat")
 	cmd.Env = append(os.Environ(), "LOG_FATAL=1")
 	cmd.Stderr = writePipe

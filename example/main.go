@@ -25,32 +25,32 @@ func thisFunc() error {
 }
 
 func main() {
-	sigolo.Plain("Hello world!") // will not be printed as log level is to restrictive
-	sigolo.Info("Hello world!")
-	sigolo.Debug("Hello world %d times!", 42) // not shown because log-level is on INFO
-	sigolo.Error("Hello world!")
+	sigolo.Plainf("Hello world!") // will not be printed as log level is to restrictive
+	sigolo.Infof("Hello world!")
+	sigolo.Debugf("Hello world %d times!", 42) // not shown because log-level is on INFO
+	sigolo.Errorf("Hello world!")
 
 	sigolo.LogLevel = sigolo.LOG_PLAIN
-	sigolo.Plain("Some plain text") // now the log level is ok
+	sigolo.Plainf("Some plain text") // now the log level is ok
 
 	time.Sleep(time.Millisecond)
 	fmt.Println("\n===== 1 =====\n")
 	sigolo.LogLevel = sigolo.LOG_DEBUG
 
-	sigolo.Info("Hello %s!", "world")
-	sigolo.Debug("Hello world %d times!", 42) // shown because log-level is on DEBUG
-	sigolo.Error("Hello %x!", 123)
+	sigolo.Infof("Hello %s!", "world")
+	sigolo.Debugf("Hello world %d times!", 42) // shown because log-level is on DEBUG
+	sigolo.Errorf("Hello %x!", 123)
 
 	time.Sleep(time.Millisecond)
 	fmt.Println("\n===== 2 =====\n")
 	sigolo.FormatFunctions[sigolo.LOG_INFO] = simpleInfo
 
-	sigolo.Info("Some")
-	sigolo.Info("AMAZING")
-	sigolo.Info("log")
-	sigolo.Info("entries")
-	sigolo.Debug("Boring")
-	sigolo.Error("Lame")
+	sigolo.Infof("Some")
+	sigolo.Infof("AMAZING")
+	sigolo.Infof("log")
+	sigolo.Infof("entries")
+	sigolo.Debugf("Boring")
+	sigolo.Errorf("Lame")
 
 	time.Sleep(time.Millisecond)
 	fmt.Println("\n===== 3 =====\n")
@@ -63,13 +63,13 @@ func main() {
 	fmt.Println("\n===== 4 =====\n")
 	sigolo.DateFormat = "02.01.2006 at 15:04:05"
 
-	sigolo.Info("Hello world!")
-	sigolo.Debug("Hello world!")
-	sigolo.Error("Hello world!")
+	sigolo.Infof("Hello world!")
+	sigolo.Debugf("Hello world!")
+	sigolo.Errorf("Hello world!")
 
 	sigolo.FatalCheck(thisFunc())
 }
 
 func simpleInfo(writer *os.File, time, level string, maxLength int, caller, message string) {
-	fmt.Fprintf(writer, ">>  My custom Info  ||  %s\n", message)
+	fmt.Fprintf(writer, ">>  My custom Infof  ||  %s\n", message)
 }
