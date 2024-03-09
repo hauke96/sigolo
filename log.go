@@ -117,6 +117,17 @@ func SetDefaultFormatFunction(level Level, function func(*os.File, string, strin
 	DefaultLogger = GetLoggerWithCurrentDefaults()
 }
 
+func SetDefaultFormatFunctionAll(function func(*os.File, string, string, int, string, int, string)) {
+	formatFunctions[LOG_PLAIN] = function
+	formatFunctions[LOG_TRACE] = function
+	formatFunctions[LOG_DEBUG] = function
+	formatFunctions[LOG_INFO] = function
+	formatFunctions[LOG_WARN] = function
+	formatFunctions[LOG_ERROR] = function
+	formatFunctions[LOG_FATAL] = function
+	DefaultLogger = GetLoggerWithCurrentDefaults()
+}
+
 func SetDefaultLevelString(level Level, output *os.File) {
 	levelOutputs[level] = output
 	DefaultLogger = GetLoggerWithCurrentDefaults()
