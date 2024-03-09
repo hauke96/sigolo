@@ -76,7 +76,7 @@ func main() {
 	logger := sigolo.NewLoggerf(sigolo.LOG_INFO, sigolo.LogDefault)
 	logger.Info("Normal info")
 	logger.Infof("Formatted info %d", 123)
-	logger.Infob(1, "Backward info %d", 123)
+	logger.Infob(0, "Backward info %d", 123)
 	logger.Debugf("Not visible %d", 123)
 
 	fmt.Println("\n===== FatalCheck =====\n")
