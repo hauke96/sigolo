@@ -8,11 +8,11 @@ import (
 )
 
 func prepare(logLevel Level) *os.File {
-	LogLevel = LOG_PLAIN
+	logLevel = LOG_PLAIN
 
 	readPipe, writePipe, _ := os.Pipe()
 
-	LevelOutputs[logLevel] = writePipe
+	levelOutputs[logLevel] = writePipe
 
 	return readPipe
 }
@@ -48,10 +48,10 @@ func checkSimpleWrite(t *testing.T, pipe *os.File, originalData string, logLevel
 		outputLevel += " "
 	}
 
-	if LevelStrings[logLevel] != outputLevel {
+	if levelStrings[logLevel] != outputLevel {
 		t.Errorf("Log-level string does not patch")
-		t.Errorf("original : %x\n", LevelStrings[logLevel])
-		t.Errorf("         : %s\n", LevelStrings[logLevel])
+		t.Errorf("original : %x\n", levelStrings[logLevel])
+		t.Errorf("         : %s\n", levelStrings[logLevel])
 		t.Errorf("written  : %x\n", outputLevel)
 		t.Errorf("         : %s\n", outputLevel)
 		t.Fail()

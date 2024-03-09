@@ -26,24 +26,28 @@ func thisFunc() error {
 
 func main() {
 	sigolo.Plainf("Hello world!") // will not be printed as log level is to restrictive
-	sigolo.Infof("Hello world!")
+	sigolo.Info("Hello world!")
+	sigolo.Infof("Hello world! With formatting %d", 123)
 	sigolo.Debugf("Hello world %d times!", 42) // not shown because log-level is on INFO
 	sigolo.Errorf("Hello world!")
 
-	sigolo.LogLevel = sigolo.LOG_PLAIN
-	sigolo.Plainf("Some plain text") // now the log level is ok
+	sigolo.SetDefaultLogLevel(sigolo.LOG_PLAIN)
+	sigolo.Plain("Some plain text")                          // now the log level is ok
+	sigolo.Plainf("Some plain text with formatting %d", 123) // now the log level is ok
 
 	time.Sleep(time.Millisecond)
 	fmt.Println("\n===== 1 =====\n")
-	sigolo.LogLevel = sigolo.LOG_DEBUG
+	sigolo.SetDefaultLogLevel(sigolo.LOG_DEBUG)
 
-	sigolo.Infof("Hello %s!", "world")
+	sigolo.Info("Hello world!")
+	sigolo.Infof("Hello formatted %s!", "world")
+	sigolo.Infob(0, "Backward hello formatted %s!", "world")
 	sigolo.Debugf("Hello world %d times!", 42) // shown because log-level is on DEBUG
 	sigolo.Errorf("Hello %x!", 123)
 
 	time.Sleep(time.Millisecond)
 	fmt.Println("\n===== 2 =====\n")
-	sigolo.FormatFunctions[sigolo.LOG_INFO] = simpleInfo
+	sigolo.SetDefaultFormatFunction(sigolo.LOG_INFO, simpleInfo)
 
 	sigolo.Infof("Some")
 	sigolo.Infof("AMAZING")
@@ -61,15 +65,24 @@ func main() {
 
 	time.Sleep(time.Millisecond)
 	fmt.Println("\n===== 4 =====\n")
-	sigolo.DateFormat = "02.01.2006 at 15:04:05"
+	sigolo.SetDefaultDateFormat("02.01.2006 at 15:04:05")
 
 	sigolo.Infof("Hello world!")
 	sigolo.Debugf("Hello world!")
 	sigolo.Errorf("Hello world!")
 
+	time.Sleep(time.Millisecond)
+	fmt.Println("\n===== Logger struct - default =====\n")
+	logger := sigolo.NewLoggerf(sigolo.LOG_INFO, sigolo.LogDefault)
+	logger.Info("Normal info")
+	logger.Infof("Formatted info %d", 123)
+	logger.Infob(1, "Backward info %d", 123)
+	logger.Debugf("Not visible %d", 123)
+
+	fmt.Println("\n===== FatalCheck =====\n")
 	sigolo.FatalCheck(thisFunc())
 }
 
-func simpleInfo(writer *os.File, time, level string, maxLength int, caller, message string) {
+func simpleInfo(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
 	fmt.Fprintf(writer, ">>  My custom Infof  ||  %s\n", message)
 }

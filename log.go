@@ -21,10 +21,22 @@ const (
 )
 
 var (
-	LogLevel   = LOG_INFO
-	DateFormat = "2006-01-02 15:04:05.000"
+	nextTraceId = 0
+	logLevel    = LOG_INFO
+	dateFormat  = "2006-01-02 15:04:05.000"
 
-	FormatFunctions = map[Level]func(*os.File, string, string, int, string, string){
+	// The current maximum length printed for caller information. This is updated each time something gets printed
+	CallerColumnWidth = 0
+
+	formatFunctions = DefaultLogFormatFunctions()
+	levelStrings    = DefaultLevelStrings()
+	levelOutputs    = DefaultLevelOutputs()
+
+	DefaultLogger = getDefaultLogger()
+)
+
+func DefaultLogFormatFunctions() map[Level]func(*os.File, string, string, int, string, int, string) {
+	return map[Level]func(*os.File, string, string, int, string, int, string){
 		LOG_PLAIN: LogPlain,
 		LOG_TRACE: LogDefault,
 		LOG_DEBUG: LogDefault,
@@ -32,11 +44,10 @@ var (
 		LOG_ERROR: LogDefault,
 		LOG_FATAL: LogDefault,
 	}
+}
 
-	// The current maximum length printed for caller information. This is updated each time something gets printed
-	CallerColumnWidth = 0
-
-	LevelStrings = map[Level]string{
+func DefaultLevelStrings() map[Level]string {
+	return map[Level]string{
 		LOG_PLAIN: "",
 		LOG_TRACE: "[TRACE]",
 		LOG_DEBUG: "[DEBUG]",
@@ -44,8 +55,10 @@ var (
 		LOG_ERROR: "[ERROR]",
 		LOG_FATAL: "[FATAL]",
 	}
+}
 
-	LevelOutputs = map[Level]*os.File{
+func DefaultLevelOutputs() map[Level]*os.File {
+	return map[Level]*os.File{
 		LOG_PLAIN: os.Stdout,
 		LOG_TRACE: os.Stdout,
 		LOG_DEBUG: os.Stdout,
@@ -53,184 +66,176 @@ var (
 		LOG_ERROR: os.Stderr,
 		LOG_FATAL: os.Stderr,
 	}
-)
+}
+
+func getDefaultLogger() *Logger {
+	return NewLoggerf(logLevel, LogDefault)
+}
+
+func SetDefaultDateFormat(format string) {
+	dateFormat = format
+	nextTraceId--
+	DefaultLogger = getDefaultLogger()
+}
+
+func SetDefaultLogLevel(level Level) {
+	logLevel = level
+	nextTraceId--
+	DefaultLogger = getDefaultLogger()
+}
+
+func SetDefaultFormatFunction(level Level, function func(*os.File, string, string, int, string, int, string)) {
+	formatFunctions[level] = function
+	nextTraceId--
+	DefaultLogger = getDefaultLogger()
+}
+
+func SetDefaultLevelString(level Level, output *os.File) {
+	levelOutputs[level] = output
+	nextTraceId--
+	DefaultLogger = getDefaultLogger()
+}
+
+func SetDefaultLevelOutput(level Level, prefix string) {
+	levelStrings[level] = prefix
+	nextTraceId--
+	DefaultLogger = getDefaultLogger()
+}
 
 func Plain(message string) {
-	if LogLevel > LOG_PLAIN {
-		return
-	}
-	log(LOG_PLAIN, 3, message)
+	DefaultLogger.Plainb(1, "%s", message)
+	increaseTraceId()
 }
 
 func Plainf(format string, args ...interface{}) {
-	if LogLevel > LOG_PLAIN {
-		return
-	}
-	log(LOG_PLAIN, 3, fmt.Sprintf(format, args...))
+	DefaultLogger.Plainb(1, format, args...)
+	increaseTraceId()
 }
 
 // Plainb is equal to Plainf(...) but can go back in the stack and can therefore show function positions from previous functions.
 func Plainb(framesBackward int, format string, args ...interface{}) {
-	if LogLevel > LOG_PLAIN {
-		return
-	}
-	log(LOG_PLAIN, 3+framesBackward, fmt.Sprintf(format, args...))
+	DefaultLogger.Plainb(1+framesBackward, format, args...)
+	increaseTraceId()
 }
 
 func Trace(message string) {
-	if LogLevel > LOG_TRACE {
-		return
-	}
-	log(LOG_TRACE, 3, message)
+	DefaultLogger.Traceb(1, "%s", message)
+	increaseTraceId()
 }
 
 func Tracef(format string, args ...interface{}) {
-	if LogLevel > LOG_TRACE {
-		return
-	}
-	log(LOG_TRACE, 3, fmt.Sprintf(format, args...))
+	DefaultLogger.Traceb(1, format, args...)
+	increaseTraceId()
 }
 
 // Traceb is equal to Tracef(...) but can go back in the stack and can therefore show function positions from previous functions.
 func Traceb(framesBackward int, format string, args ...interface{}) {
-	if LogLevel > LOG_TRACE {
-		return
-	}
-	log(LOG_TRACE, 3+framesBackward, fmt.Sprintf(format, args...))
+	DefaultLogger.Traceb(1+framesBackward, format, args...)
+	increaseTraceId()
 }
 
 func Debug(message string) {
-	if LogLevel > LOG_DEBUG {
-		return
-	}
-	log(LOG_DEBUG, 3, message)
+	DefaultLogger.Debugb(1, "%s", message)
+	increaseTraceId()
 }
 
 func Debugf(format string, args ...interface{}) {
-	if LogLevel > LOG_DEBUG {
-		return
-	}
-	log(LOG_DEBUG, 3, fmt.Sprintf(format, args...))
+	DefaultLogger.Debugb(1, format, args...)
+	increaseTraceId()
 }
 
 // Debugb is equal to Debugf(...) but can go back in the stack and can therefore show function positions from previous functions.
 func Debugb(framesBackward int, format string, args ...interface{}) {
-	if LogLevel > LOG_DEBUG {
-		return
-	}
-	log(LOG_DEBUG, 3+framesBackward, fmt.Sprintf(format, args...))
+	DefaultLogger.Debugb(1+framesBackward, format, args...)
+	increaseTraceId()
 }
 
 func Info(message string) {
-	if LogLevel > LOG_INFO {
-		return
-	}
-	log(LOG_INFO, 3, message)
+	DefaultLogger.Infob(1, "%s", message)
+	increaseTraceId()
 }
 
 func Infof(format string, args ...interface{}) {
-	if LogLevel > LOG_INFO {
-		return
-	}
-	log(LOG_INFO, 3, fmt.Sprintf(format, args...))
+	DefaultLogger.Infob(1, format, args...)
+	increaseTraceId()
 }
 
 // Infob is equal to Infof(...) but can go back in the stack and can therefore show function positions from previous functions.
 func Infob(framesBackward int, format string, args ...interface{}) {
-	if LogLevel > LOG_INFO {
-		return
-	}
-	log(LOG_INFO, 3+framesBackward, fmt.Sprintf(format, args...))
+	DefaultLogger.Infob(1+framesBackward, format, args...)
+	increaseTraceId()
 }
 
 func Warn(message string) {
-	if LogLevel > LOG_WARN {
-		return
-	}
-	log(LOG_WARN, 3, message)
+	DefaultLogger.Warnb(1, "%s", message)
+	increaseTraceId()
 }
 
 func Warnf(format string, args ...interface{}) {
-	if LogLevel > LOG_WARN {
-		return
-	}
-	log(LOG_WARN, 3, fmt.Sprintf(format, args...))
+	DefaultLogger.Warnb(1, format, args...)
+	increaseTraceId()
 }
 
 // Warnb is equal to Warnf(...) but can go back in the stack and can therefore show function positions from previous functions.
 func Warnb(framesBackward int, format string, args ...interface{}) {
-	if LogLevel > LOG_WARN {
-		return
-	}
-	log(LOG_WARN, 3+framesBackward, fmt.Sprintf(format, args...))
+	DefaultLogger.Warnb(1+framesBackward, format, args...)
+	increaseTraceId()
 }
 
 func Error(message string) {
-	if LogLevel > LOG_ERROR {
-		return
-	}
-	log(LOG_ERROR, 3, message)
+	DefaultLogger.Errorb(1, "%s", message)
+	increaseTraceId()
 }
 
 func Errorf(format string, args ...interface{}) {
-	if LogLevel > LOG_ERROR {
-		return
-	}
-	log(LOG_ERROR, 3, fmt.Sprintf(format, args...))
+	DefaultLogger.Errorb(1, format, args...)
+	increaseTraceId()
 }
 
 // Errorb is equal to Errorf(...) but can go back in the stack and can therefore show function positions from previous functions.
 func Errorb(framesBackward int, format string, args ...interface{}) {
-	if LogLevel > LOG_ERROR {
-		return
-	}
-	log(LOG_ERROR, 3+framesBackward, fmt.Sprintf(format, args...))
+	DefaultLogger.Errorb(1+framesBackward, format, args...)
+	increaseTraceId()
 }
 
 func Fatal(message string) {
-	log(LOG_FATAL, 3, message)
-	os.Exit(1)
+	DefaultLogger.Fatalb(1, "%s", message)
+	increaseTraceId()
 }
 
 func Fatalf(format string, args ...interface{}) {
-	log(LOG_FATAL, 3, fmt.Sprintf(format, args...))
+	DefaultLogger.Fatalb(1, format, args...)
+	increaseTraceId()
 	os.Exit(1)
 }
 
 // Fatalb is equal to Fatalf(...) but can go back in the stack and can therefore show function positions from previous functions.
 func Fatalb(framesBackward int, format string, args ...interface{}) {
-	log(LOG_FATAL, 3+framesBackward, fmt.Sprintf(format, args...))
+	DefaultLogger.Fatalb(1+framesBackward, format, args...)
+	increaseTraceId()
 }
 
 // Stack tries to print the stack trace of the given error using the  %+v  format string. When using the
 // https://github.com/pkg/errors package, this will print a full stack trace of the error. If normal errors are used,
 // this function will just print the error.
 func Stack(err error) {
-	if LogLevel > LOG_ERROR {
-		return
-	}
-	// Directly call "log" to avoid extra function call
-	log(LOG_ERROR, 3, fmt.Sprintf("%+v", err))
+	DefaultLogger.Stackb(1, err)
 }
 
 // Stackb is equal to Stack(...) but can go back in the stack and can therefore show function positions from previous functions.
 func Stackb(framesBackward int, err error) {
-	if LogLevel > LOG_ERROR {
-		return
-	}
-	// Directly call "log" to avoid extra function call
-	log(LOG_ERROR, 3+framesBackward, fmt.Sprintf("%+v", err))
+	DefaultLogger.Stackb(1+framesBackward, err)
 }
 
 // FatalCheckf checks if the error exists (!= nil). If so, it'll print the error
 // message and fatals with the given format message.
-func FatalCheckf(err error, format string, args ...interface{}) {
+func FatalCheckf(err error, traceId int, format string, args ...interface{}) {
 	if err != nil {
 		Stackb(1, err)
 		if args != nil {
-			internalFatal(format, args...)
+			internalFatalf(traceId, format, args...)
 		} else {
-			internalFatal(format)
+			internalFatalf(traceId, format)
 		}
 	}
 }
@@ -243,23 +248,12 @@ func FatalCheck(err error) {
 	}
 }
 
-func internalFatal(format string, args ...interface{}) {
-	internalLog(LOG_FATAL, fmt.Sprintf(format, args...))
+func internalFatalf(traceId int, format string, args ...interface{}) {
+	internalLog(LOG_FATAL, traceId, fmt.Sprintf(format, args...))
 	os.Exit(1)
 }
 
-func log(level Level, framesBackward int, message string) {
-	// A bit hacky: We know here that the stack contains two calls from inside
-	// this file. The third frame comes from the file that initially called a
-	// function in this file (e.g. Infof())
-	caller := getCallerDetails(framesBackward)
-
-	updateCallerColumnWidth(caller)
-
-	FormatFunctions[level](LevelOutputs[level], time.Now().Format(DateFormat), LevelStrings[level], CallerColumnWidth, caller, message)
-}
-
-func internalLog(level Level, message string) {
+func internalLog(level Level, traceId int, message string) {
 	// A bit hacky: We know here that the stack contains three calls from inside
 	// this file. The third frame comes from the file that initially called a
 	// function in this file (e.g. Infof())
@@ -267,7 +261,7 @@ func internalLog(level Level, message string) {
 
 	updateCallerColumnWidth(caller)
 
-	FormatFunctions[level](LevelOutputs[level], time.Now().Format(DateFormat), LevelStrings[level], CallerColumnWidth, caller, message)
+	formatFunctions[level](levelOutputs[level], time.Now().Format(dateFormat), levelStrings[level], CallerColumnWidth, caller, traceId, message)
 }
 
 func updateCallerColumnWidth(caller string) {
@@ -292,10 +286,17 @@ func getCallerDetails(framesBackwards int) string {
 	return caller
 }
 
-func LogDefault(writer *os.File, time, level string, maxLength int, caller, message string) {
-	fmt.Fprintf(writer, "%s %s %-*s | %s\n", time, level, maxLength, caller, message)
+// increaseTraceId increases the trace ID of the default logger. This has the effect, that the caller doesn't know that
+// in the background the same DefaultLogger instance is "recycled".
+func increaseTraceId() {
+	DefaultLogger.LogTraceId++
+	nextTraceId++
 }
 
-func LogPlain(writer *os.File, time, level string, maxLength int, caller, message string) {
+func LogDefault(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
+	fmt.Fprintf(writer, "%s %s %-*s | #%x | %s\n", time, level, maxLength, caller, traceId, message)
+}
+
+func LogPlain(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
 	fmt.Fprintf(writer, "%s\n", message)
 }
