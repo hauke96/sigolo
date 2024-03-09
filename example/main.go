@@ -47,7 +47,7 @@ func main() {
 
 	time.Sleep(time.Millisecond)
 	fmt.Println("\n===== 2 =====\n")
-	sigolo.SetDefaultFormatFunction(sigolo.LOG_INFO, simpleInfo)
+	//sigolo.SetDefaultFormatFunction(sigolo.LOG_INFO, simpleInfo)
 
 	sigolo.Infof("Some")
 	sigolo.Infof("AMAZING")

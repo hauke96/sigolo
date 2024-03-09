@@ -80,38 +80,38 @@ func DefaultLevelOutputs() map[Level]*os.File {
 }
 
 func getDefaultLogger() *Logger {
-	logger := NewLogger()
-	logger.FormatFunctions = DefaultStaticLogFormatFunctions()
-	return logger
+	return &Logger{
+		LogTraceId:      nextTraceId,
+		LogLevel:        logLevel,
+		DateFormat:      dateFormat,
+		FormatFunctions: formatFunctions,
+		LevelStrings:    levelStrings,
+		LevelOutputs:    levelOutputs,
+	}
 }
 
 func SetDefaultDateFormat(format string) {
 	dateFormat = format
-	nextTraceId--
 	DefaultLogger = getDefaultLogger()
 }
 
 func SetDefaultLogLevel(level Level) {
 	logLevel = level
-	nextTraceId--
 	DefaultLogger = getDefaultLogger()
 }
 
 func SetDefaultFormatFunction(level Level, function func(*os.File, string, string, int, string, int, string)) {
 	formatFunctions[level] = function
-	nextTraceId--
 	DefaultLogger = getDefaultLogger()
 }
 
 func SetDefaultLevelString(level Level, output *os.File) {
 	levelOutputs[level] = output
-	nextTraceId--
 	DefaultLogger = getDefaultLogger()
 }
 
 func SetDefaultLevelOutput(level Level, prefix string) {
 	levelStrings[level] = prefix
-	nextTraceId--
 	DefaultLogger = getDefaultLogger()
 }
 
@@ -233,11 +233,13 @@ func Fatalb(framesBackward int, format string, args ...interface{}) {
 // this function will just print the error.
 func Stack(err error) {
 	DefaultLogger.Stackb(1, err)
+	increaseTraceId()
 }
 
 // Stackb is equal to Stack(...) but can go back in the stack and can therefore show function positions from previous functions.
 func Stackb(framesBackward int, err error) {
 	DefaultLogger.Stackb(1+framesBackward, err)
+	increaseTraceId()
 }
 
 // FatalCheckf checks if the error exists (!= nil). If so, it'll print the error
@@ -311,7 +313,7 @@ func LogDefault(writer *os.File, time, level string, maxLength int, caller strin
 }
 
 func LogDefaultStatic(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
-	fmt.Fprintf(writer, "%s %s %-*s | %s\n", time, level, maxLength, caller, message)
+	fmt.Fprintf(writer, "%s %s %-*s | #%x | %s\n", time, level, maxLength, caller, traceId, message)
 }
 
 func LogPlain(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
