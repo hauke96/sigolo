@@ -32,7 +32,7 @@ var (
 	levelStrings    = DefaultLevelStrings()
 	levelOutputs    = DefaultLevelOutputs()
 
-	DefaultLogger = getDefaultLogger()
+	DefaultLogger = GetLoggerWithCurrentDefaults()
 )
 
 func DefaultLogFormatFunctions() map[Level]func(*os.File, string, string, int, string, int, string) {
@@ -79,7 +79,19 @@ func DefaultLevelOutputs() map[Level]*os.File {
 	}
 }
 
-func getDefaultLogger() *Logger {
+func GetCurrentLogLevel() Level {
+	return logLevel
+}
+
+func GetCurrentDateFormat() string {
+	return dateFormat
+}
+
+func GetCurrentNextTraceId() int {
+	return nextTraceId
+}
+
+func GetLoggerWithCurrentDefaults() *Logger {
 	return &Logger{
 		LogTraceId:      nextTraceId,
 		LogLevel:        logLevel,
@@ -92,27 +104,27 @@ func getDefaultLogger() *Logger {
 
 func SetDefaultDateFormat(format string) {
 	dateFormat = format
-	DefaultLogger = getDefaultLogger()
+	DefaultLogger = GetLoggerWithCurrentDefaults()
 }
 
 func SetDefaultLogLevel(level Level) {
 	logLevel = level
-	DefaultLogger = getDefaultLogger()
+	DefaultLogger = GetLoggerWithCurrentDefaults()
 }
 
 func SetDefaultFormatFunction(level Level, function func(*os.File, string, string, int, string, int, string)) {
 	formatFunctions[level] = function
-	DefaultLogger = getDefaultLogger()
+	DefaultLogger = GetLoggerWithCurrentDefaults()
 }
 
 func SetDefaultLevelString(level Level, output *os.File) {
 	levelOutputs[level] = output
-	DefaultLogger = getDefaultLogger()
+	DefaultLogger = GetLoggerWithCurrentDefaults()
 }
 
 func SetDefaultLevelOutput(level Level, prefix string) {
 	levelStrings[level] = prefix
-	DefaultLogger = getDefaultLogger()
+	DefaultLogger = GetLoggerWithCurrentDefaults()
 }
 
 func Plain(message string) {
