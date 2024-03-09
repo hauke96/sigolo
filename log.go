@@ -28,7 +28,7 @@ var (
 	// The current maximum length printed for caller information. This is updated each time something gets printed
 	CallerColumnWidth = 0
 
-	formatFunctions = DefaultLogFormatFunctions()
+	formatFunctions = DefaultStaticLogFormatFunctions()
 	levelStrings    = DefaultLevelStrings()
 	levelOutputs    = DefaultLevelOutputs()
 
@@ -43,6 +43,17 @@ func DefaultLogFormatFunctions() map[Level]func(*os.File, string, string, int, s
 		LOG_INFO:  LogDefault,
 		LOG_ERROR: LogDefault,
 		LOG_FATAL: LogDefault,
+	}
+}
+
+func DefaultStaticLogFormatFunctions() map[Level]func(*os.File, string, string, int, string, int, string) {
+	return map[Level]func(*os.File, string, string, int, string, int, string){
+		LOG_PLAIN: LogPlain,
+		LOG_TRACE: LogDefaultStatic,
+		LOG_DEBUG: LogDefaultStatic,
+		LOG_INFO:  LogDefaultStatic,
+		LOG_ERROR: LogDefaultStatic,
+		LOG_FATAL: LogDefaultStatic,
 	}
 }
 
@@ -69,7 +80,9 @@ func DefaultLevelOutputs() map[Level]*os.File {
 }
 
 func getDefaultLogger() *Logger {
-	return NewLoggerf(logLevel, LogDefault)
+	logger := NewLogger()
+	logger.FormatFunctions = DefaultStaticLogFormatFunctions()
+	return logger
 }
 
 func SetDefaultDateFormat(format string) {
@@ -295,6 +308,10 @@ func increaseTraceId() {
 
 func LogDefault(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
 	fmt.Fprintf(writer, "%s %s %-*s | #%x | %s\n", time, level, maxLength, caller, traceId, message)
+}
+
+func LogDefaultStatic(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
+	fmt.Fprintf(writer, "%s %s %-*s | %s\n", time, level, maxLength, caller, message)
 }
 
 func LogPlain(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
