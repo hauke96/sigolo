@@ -325,7 +325,7 @@ func LogDefault(writer *os.File, time, level string, maxLength int, caller strin
 }
 
 func LogDefaultStatic(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
-	fmt.Fprintf(writer, "%s %s %-*s | %s\n", time, level, maxLength, caller, traceId, message)
+	fmt.Fprintf(writer, "%s %s %-*s | %s\n", time, level, maxLength, caller, message)
 }
 
 func LogPlain(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
