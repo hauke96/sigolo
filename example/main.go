@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/hauke96/sigolo"
+	"github.com/hauke96/sigolo/v2"
 )
 
 func someFrameworkFunction() error {
