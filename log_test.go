@@ -1,6 +1,7 @@
 package sigolo
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -8,7 +9,7 @@ import (
 )
 
 func prepare(logLevel Level) *os.File {
-	logLevel = LOG_PLAIN
+	SetDefaultLogLevel(LOG_PLAIN)
 
 	readPipe, writePipe, _ := os.Pipe()
 
@@ -226,4 +227,53 @@ func TestFatalFormat(t *testing.T) {
 	checkSimpleWrite(t, readPipe, originalData, LOG_FATAL)
 }
 
+func TestShouldLog(t *testing.T) {
+	logLevel = LOG_INFO
+	assertTrue(t, ShouldLog(LOG_FATAL))
+	assertTrue(t, ShouldLog(LOG_ERROR))
+	assertTrue(t, ShouldLog(LOG_WARN))
+	assertTrue(t, ShouldLog(LOG_INFO))
+	assertFalse(t, ShouldLog(LOG_DEBUG))
+	assertFalse(t, ShouldLog(LOG_TRACE))
+	assertFalse(t, ShouldLog(LOG_PLAIN))
+	assertFalse(t, ShouldLogDebug())
+	assertFalse(t, ShouldLogTrace())
+
+	logLevel = LOG_FATAL
+	assertTrue(t, ShouldLog(LOG_FATAL))
+	assertFalse(t, ShouldLog(LOG_ERROR))
+	assertFalse(t, ShouldLog(LOG_WARN))
+	assertFalse(t, ShouldLog(LOG_INFO))
+	assertFalse(t, ShouldLog(LOG_DEBUG))
+	assertFalse(t, ShouldLog(LOG_TRACE))
+	assertFalse(t, ShouldLog(LOG_PLAIN))
+	assertFalse(t, ShouldLogDebug())
+	assertFalse(t, ShouldLogTrace())
+
+	logLevel = LOG_TRACE
+	assertTrue(t, ShouldLog(LOG_FATAL))
+	assertTrue(t, ShouldLog(LOG_ERROR))
+	assertTrue(t, ShouldLog(LOG_WARN))
+	assertTrue(t, ShouldLog(LOG_INFO))
+	assertTrue(t, ShouldLog(LOG_DEBUG))
+	assertTrue(t, ShouldLog(LOG_TRACE))
+	assertFalse(t, ShouldLog(LOG_PLAIN))
+	assertTrue(t, ShouldLogDebug())
+	assertTrue(t, ShouldLogTrace())
+}
+
 // TODO more test regarding the caller information (function name and line)
+
+func assertTrue(t *testing.T, b bool) {
+	if !b {
+		fmt.Println("Expected true but got false")
+		t.Fail()
+	}
+}
+
+func assertFalse(t *testing.T, b bool) {
+	if b {
+		fmt.Println("Expected false but got true")
+		t.Fail()
+	}
+}

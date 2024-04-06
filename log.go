@@ -112,6 +112,18 @@ func SetDefaultLogLevel(level Level) {
 	DefaultLogger = GetLoggerWithCurrentDefaults()
 }
 
+func ShouldLog(level Level) bool {
+	return logLevel <= level
+}
+
+func ShouldLogTrace() bool {
+	return ShouldLog(LOG_TRACE)
+}
+
+func ShouldLogDebug() bool {
+	return ShouldLog(LOG_DEBUG)
+}
+
 func SetDefaultFormatFunction(level Level, function func(*os.File, string, string, int, string, int, string)) {
 	formatFunctions[level] = function
 	DefaultLogger = GetLoggerWithCurrentDefaults()
