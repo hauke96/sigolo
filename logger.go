@@ -2,7 +2,7 @@ package sigolo
 
 import (
 	"fmt"
-	"os"
+	"io"
 	"time"
 )
 
@@ -10,9 +10,9 @@ type Logger struct {
 	LogTraceId      int
 	LogLevel        Level
 	DateFormat      string
-	FormatFunctions map[Level]func(*os.File, string, string, int, string, int, string)
+	FormatFunctions map[Level]func(io.Writer, string, string, int, string, int, string)
 	LevelStrings    map[Level]string
-	LevelOutputs    map[Level]*os.File
+	LevelOutputs    map[Level]io.Writer
 }
 
 func NewLogger() *Logger {
@@ -41,11 +41,11 @@ func NewLoggerl(logLevel Level) *Logger {
 	}
 }
 
-func NewLoggerf(logLevel Level, defaultFormat func(*os.File, string, string, int, string, int, string)) *Logger {
+func NewLoggerf(logLevel Level, defaultFormat func(io.Writer, string, string, int, string, int, string)) *Logger {
 	traceId := nextTraceId
 	nextTraceId++
 
-	formatFunctions := map[Level]func(*os.File, string, string, int, string, int, string){
+	formatFunctions := map[Level]func(io.Writer, string, string, int, string, int, string){
 		LOG_PLAIN: defaultFormat,
 		LOG_TRACE: defaultFormat,
 		LOG_DEBUG: defaultFormat,
@@ -195,7 +195,7 @@ func (l *Logger) log(level Level, framesBackward int, traceId int, message strin
 	// A bit hacky: We know here that the stack contains two calls from inside
 	// this file. The third frame comes from the file that initially called a
 	// function in this file (e.g. Infof())
-	caller := getCallerDetails(framesBackward)
+	caller := GetCallerDetails(framesBackward)
 
 	updateCallerColumnWidth(caller)
 

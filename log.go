@@ -2,6 +2,7 @@ package sigolo
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"runtime"
@@ -35,8 +36,8 @@ var (
 	DefaultLogger = GetLoggerWithCurrentDefaults()
 )
 
-func DefaultLogFormatFunctions() map[Level]func(*os.File, string, string, int, string, int, string) {
-	return map[Level]func(*os.File, string, string, int, string, int, string){
+func DefaultLogFormatFunctions() map[Level]func(io.Writer, string, string, int, string, int, string) {
+	return map[Level]func(io.Writer, string, string, int, string, int, string){
 		LOG_PLAIN: LogPlain,
 		LOG_TRACE: LogDefault,
 		LOG_DEBUG: LogDefault,
@@ -46,8 +47,8 @@ func DefaultLogFormatFunctions() map[Level]func(*os.File, string, string, int, s
 	}
 }
 
-func DefaultStaticLogFormatFunctions() map[Level]func(*os.File, string, string, int, string, int, string) {
-	return map[Level]func(*os.File, string, string, int, string, int, string){
+func DefaultStaticLogFormatFunctions() map[Level]func(io.Writer, string, string, int, string, int, string) {
+	return map[Level]func(io.Writer, string, string, int, string, int, string){
 		LOG_PLAIN: LogPlain,
 		LOG_TRACE: LogDefaultStatic,
 		LOG_DEBUG: LogDefaultStatic,
@@ -68,8 +69,8 @@ func DefaultLevelStrings() map[Level]string {
 	}
 }
 
-func DefaultLevelOutputs() map[Level]*os.File {
-	return map[Level]*os.File{
+func DefaultLevelOutputs() map[Level]io.Writer {
+	return map[Level]io.Writer{
 		LOG_PLAIN: os.Stdout,
 		LOG_TRACE: os.Stdout,
 		LOG_DEBUG: os.Stdout,
@@ -124,12 +125,12 @@ func ShouldLogDebug() bool {
 	return ShouldLog(LOG_DEBUG)
 }
 
-func SetDefaultFormatFunction(level Level, function func(*os.File, string, string, int, string, int, string)) {
+func SetDefaultFormatFunction(level Level, function func(io.Writer, string, string, int, string, int, string)) {
 	formatFunctions[level] = function
 	DefaultLogger = GetLoggerWithCurrentDefaults()
 }
 
-func SetDefaultFormatFunctionAll(function func(*os.File, string, string, int, string, int, string)) {
+func SetDefaultFormatFunctionAll(function func(io.Writer, string, string, int, string, int, string)) {
 	formatFunctions[LOG_PLAIN] = function
 	formatFunctions[LOG_TRACE] = function
 	formatFunctions[LOG_DEBUG] = function
@@ -140,7 +141,7 @@ func SetDefaultFormatFunctionAll(function func(*os.File, string, string, int, st
 	DefaultLogger = GetLoggerWithCurrentDefaults()
 }
 
-func SetDefaultLevelString(level Level, output *os.File) {
+func SetDefaultLevelString(level Level, output io.Writer) {
 	levelOutputs[level] = output
 	DefaultLogger = GetLoggerWithCurrentDefaults()
 }
@@ -307,7 +308,7 @@ func internalLog(level Level, traceId int, message string) {
 	// A bit hacky: We know here that the stack contains three calls from inside
 	// this file. The third frame comes from the file that initially called a
 	// function in this file (e.g. Infof())
-	caller := getCallerDetails(4)
+	caller := GetCallerDetails(4)
 
 	updateCallerColumnWidth(caller)
 
@@ -320,7 +321,7 @@ func updateCallerColumnWidth(caller string) {
 	}
 }
 
-func getCallerDetails(framesBackwards int) string {
+func GetCallerDetails(framesBackwards int) string {
 	name := "???"
 	line := -1
 	ok := false
@@ -343,14 +344,14 @@ func increaseTraceId() {
 	nextTraceId++
 }
 
-func LogDefault(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
+func LogDefault(writer io.Writer, time string, level string, maxLength int, caller string, traceId int, message string) {
 	fmt.Fprintf(writer, "%s %s %-*s | #%x | %s\n", time, level, maxLength, caller, traceId, message)
 }
 
-func LogDefaultStatic(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
+func LogDefaultStatic(writer io.Writer, time string, level string, maxLength int, caller string, traceId int, message string) {
 	fmt.Fprintf(writer, "%s %s %-*s | %s\n", time, level, maxLength, caller, message)
 }
 
-func LogPlain(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
+func LogPlain(writer io.Writer, time string, level string, maxLength int, caller string, traceId int, message string) {
 	fmt.Fprintf(writer, "%s\n", message)
 }

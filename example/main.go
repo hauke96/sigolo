@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/pkg/errors"
-	"os"
+	"io"
 	"time"
 
 	".."
@@ -83,6 +83,6 @@ func main() {
 	sigolo.FatalCheck(thisFunc())
 }
 
-func simpleInfo(writer *os.File, time, level string, maxLength int, caller string, traceId int, message string) {
+func simpleInfo(writer io.Writer, time, level string, maxLength int, caller string, traceId int, message string) {
 	fmt.Fprintf(writer, ">>  My custom Infof  ||  %s\n", message)
 }
