@@ -45,7 +45,7 @@ func checkSimpleWrite(t *testing.T, pipe *os.File, originalData string, logLevel
 	}
 
 	// Log-level INFO has an additional space at its end because the string is shorter than others
-	if logLevel == LOG_INFO {
+	if logLevel == LOG_INFO || logLevel == LOG_WARN {
 		outputLevel += " "
 	}
 
@@ -109,6 +109,16 @@ func TestTrace(t *testing.T) {
 	Tracef(originalData)
 
 	checkSimpleWrite(t, pipe, originalData, LOG_TRACE)
+}
+
+func TestWarn(t *testing.T) {
+	pipe := prepare(LOG_WARN)
+
+	originalData := "aAzZ1!?_´→"
+
+	Warnf(originalData)
+
+	checkSimpleWrite(t, pipe, originalData, LOG_WARN)
 }
 
 func TestError(t *testing.T) {

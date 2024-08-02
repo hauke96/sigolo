@@ -42,6 +42,7 @@ func DefaultLogFormatFunctions() map[Level]func(io.Writer, string, string, int, 
 		LOG_TRACE: LogDefault,
 		LOG_DEBUG: LogDefault,
 		LOG_INFO:  LogDefault,
+		LOG_WARN:  LogDefault,
 		LOG_ERROR: LogDefault,
 		LOG_FATAL: LogDefault,
 	}
@@ -53,6 +54,7 @@ func DefaultStaticLogFormatFunctions() map[Level]func(io.Writer, string, string,
 		LOG_TRACE: LogDefaultStatic,
 		LOG_DEBUG: LogDefaultStatic,
 		LOG_INFO:  LogDefaultStatic,
+		LOG_WARN:  LogDefaultStatic,
 		LOG_ERROR: LogDefaultStatic,
 		LOG_FATAL: LogDefaultStatic,
 	}
@@ -64,6 +66,7 @@ func DefaultLevelStrings() map[Level]string {
 		LOG_TRACE: "[TRACE]",
 		LOG_DEBUG: "[DEBUG]",
 		LOG_INFO:  "[INFO] ",
+		LOG_WARN:  "[WARN] ",
 		LOG_ERROR: "[ERROR]",
 		LOG_FATAL: "[FATAL]",
 	}
@@ -75,6 +78,7 @@ func DefaultLevelOutputs() map[Level]io.Writer {
 		LOG_TRACE: os.Stdout,
 		LOG_DEBUG: os.Stdout,
 		LOG_INFO:  os.Stdout,
+		LOG_WARN:  os.Stdout,
 		LOG_ERROR: os.Stderr,
 		LOG_FATAL: os.Stderr,
 	}
